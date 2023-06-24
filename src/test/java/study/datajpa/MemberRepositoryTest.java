@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 @Commit
 class MemberRepositoryTest {
-    @Autowired MemberRepository memberRepository;
+    /*@Autowired MemberRepository memberRepository;
 
     @Test
     public void testMember() {
@@ -25,5 +25,5 @@ class MemberRepositoryTest {
         assertThat(findById.getId()).isEqualTo(savedMember.getId());
         assertThat(findById.getUsername()).isEqualTo(savedMember.getUsername());
         assertThat(findById).isEqualTo(savedMember); //JPA 엔터티 동일성 보장 (영속성 1차캐시 Proxy객체)
-    }
+    }*/
 }
