@@ -22,16 +22,16 @@ public class Member {
 
     /**
      * 1번 생성자 <br/>
-     * 2번 생성자 호출
+     * 2번 생성자 호출 : username 초기화 및 age 0
      * @param username
      */
     public Member(String username) {
-        this(username, 0); // 2번 생성자 호출
+        this(username, 0, null); // 2번 생성자 호출
     }
 
     /**
      * 2번 생성자 <br/>
-     * username, age 초기화 
+     * 3번 생성자 호출 : username, age 초기화 및 team을 null로 초기화
      * @param username
      * @param age
      */
@@ -53,6 +53,11 @@ public class Member {
         }
     }
 
+    /**
+     * 양방향 연관관계 편의 메소드 <br/>
+     * Member의 team을 초기화함과 동시에 Team의 members에 현재 Member추가
+     * @param team
+     */
     private void changeTeam(Team team) {
         this.team = team;
         team.getMembers().add(this);
