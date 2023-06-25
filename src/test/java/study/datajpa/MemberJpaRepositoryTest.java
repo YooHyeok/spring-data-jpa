@@ -4,6 +4,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.entity.Member;
@@ -87,4 +89,33 @@ class MemberJpaRepositoryTest {
 
         assertThat(findMember).isEqualTo(m1);
     }
+    
+    @Test
+    public void paging() {
+        memberJpaRepository.save(new Member("member1", 10));
+        memberJpaRepository.save(new Member("member2", 10));
+        memberJpaRepository.save(new Member("member3", 10));
+        memberJpaRepository.save(new Member("member4", 10));
+        memberJpaRepository.save(new Member("member5", 10));
+        
+        //순수 값으로 처리
+        int age = 10, offset = 0, limit = 3;
+
+        List<Member> members = memberJpaRepository.findByPageOfSimple(age, offset, limit);
+        long totalCount = memberJpaRepository.tatalCount(10);
+
+        assertThat(members.size()).isEqualTo(3);
+        assertThat(totalCount).isEqualTo(5);
+
+        // PageRequest에 담아 처리
+        PageRequest pageable = PageRequest.of(offset, limit);
+        List<Member> members2 = memberJpaRepository.findByPageOfPageable(age, pageable);
+        long totalCount2 = memberJpaRepository.tatalCount(10);
+
+        assertThat(members2.size()).isEqualTo(3);
+        assertThat(totalCount2).isEqualTo(5);
+
+    }
+    
+    
 }

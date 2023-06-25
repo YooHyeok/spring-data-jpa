@@ -1,5 +1,6 @@
 package study.datajpa.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import study.datajpa.entity.Member;
 
@@ -56,9 +57,33 @@ public class MemberJpaRepository {
     }
 
     /** NamedQuery */
-    public List<Member> findByUsername(String username){
+    public List<Member> findByUsername(String username) {
         return em.createNamedQuery("Member.findByUsername", Member.class)
                 .setParameter("username", username)
                 .getResultList();
+    }
+
+    /** 페이징 조회 단순 값*/
+    public List<Member> findByPageOfSimple(int age, int offset, int limit) {
+        return em.createQuery("select m from Member m where m.age = :age order by m.username desc")
+                .setParameter("age", age)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
+    /** 페이징 조회 - Pageable활용 */
+    public List<Member> findByPageOfPageable(int age, Pageable pageable) {
+        return em.createQuery("select m from Member m where m.age = :age order by m.username desc")
+                .setParameter("age", age)
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
+    }
+
+    public long tatalCount(int age) {
+        return em.createQuery("select count(m) from Member m where m.age = :age", Long.class)
+                .setParameter("age", age)
+                .getSingleResult();
     }
 }
