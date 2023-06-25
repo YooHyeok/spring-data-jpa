@@ -15,6 +15,7 @@ import study.datajpa.repository.TeamRepository;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -154,5 +155,40 @@ class MemberRepositoryTest {
         for (Member member : result) {
             System.out.println("member = " + member);
         }
+    }
+
+    @Test
+    public void returnTypeTest() {
+        Member m1 = new Member("AAA", 10);
+        memberRepository.save(m1);
+
+        List<Member> listMember = memberRepository.findListByUsername("asdadasd"); //빈 컬렉션을 반환한다.
+        assertThat(listMember.size()).isEqualTo(0); // 0열 반환 - (데이터가 없다고 하더라도 null일 수가 없음.)
+        assertThat(listMember).isNotNull(); // 빈 컬렉션 이므로 if(listMember == null) 위험한 코드이다.
+        assertThat(listMember).isEmpty(); // 비어있음.
+
+        Member member = memberRepository.findMemberByUsername("asdadasd"); //null을 반환한다.
+        assertThat(member).isNull(); // 순수 JPA에서 NoResultException이 터지는것을 Spring에서는 TryCatch로 에러를 감싸 null로 반환한다.
+
+        Optional<Member> optionalMember =
+                memberRepository.findOptionalByUsername("asdadasd"); //데이터가 있을 지 없을 지 모르면 Optional로 반환받는다. return Optional.offNullable(member);
+        assertThat(optionalMember.isPresent()).isEqualTo(false); // isPresent()를 사용하기보다 return optionalMember.orElse(null); 를 추천한다.
+        System.out.println("orElse(null) : " + optionalMember.orElse(null)); // orElse는 값이 존재하면 값 반환 없으면 매개변수 값 반환
+
+        /**
+         * Optional은 한건의 결과를 조회하면서 null유무를 확인할때 사용하는데 <br/>
+         * 데이터가 2건 이상일 경우 IncorrectResultSizeDataAccessException을 터트린다. <br/>
+         * 원래는 NonUniqueResultException이 터지는데 Spring Data JPA가 IncorrectResultSizeDataAccessException 로 바꿔서 반환한다. <br/>
+         * 이유는 Repository의 기술은 예를들어 몽고DB가 될 수도 있고 Redis가 될 수 도 있는데, <br/>
+         * 그것을 사용하는 서비스계층의 클라이언트 코드들은 JPA 예외에 의존하는게 아니라 스프링이 추상화한 예외에 의존하면 <br/>
+         * 하부의 리포지토리 기술을 JPA에서 몽고디비나 다른 JDBC기술로 바꾸어도 <br/>
+         * 스프링은 동일하게 데이터가 맞지 않맞는 것들은 IncorrectResultSizeDataAccessException 예외를 터트린다.
+         * 이것을 사용하는 클라이언트 코드를 바꿀 필요가 없어진다.
+         */
+        Member m2 = new Member("AAA", 10);
+        memberRepository.save(m2);
+
+        Optional<Member> optionalMemberAAA =
+                memberRepository.findOptionalByUsername("AAA"); // Optional은 결과가 한건을 조회할때 사용하는데 2건이상이면
     }
 }
