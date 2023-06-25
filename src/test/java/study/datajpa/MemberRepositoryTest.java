@@ -16,6 +16,8 @@ import study.datajpa.entity.Team;
 import study.datajpa.repository.MemberRepository;
 import study.datajpa.repository.TeamRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,9 @@ class MemberRepositoryTest {
     MemberRepository memberRepository;
     @Autowired
     TeamRepository teamRepository;
+
+    @PersistenceContext
+    EntityManager em;
 
     /**
      * JpaRepository를 상속받은 인터페이스는 SpringDataJPA가 구현체 생성해서 Proxy객체로 injection 해준다. <br/>
@@ -240,5 +245,25 @@ class MemberRepositoryTest {
 
 //        memberRepository.findByAgeOfJPQL(age, pageable).getContent().get(0).getTeam();
 
+    }
+
+    @Test
+    public void bulkUpdate() {
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 19));
+        memberRepository.save(new Member("member3", 20));
+        memberRepository.save(new Member("member4", 21));
+        memberRepository.save(new Member("member5", 40));
+
+        //나이가 20살 이상인 회원들의 나이를 1씩 증가시킨다.
+        int resultCount = memberRepository.bulkAgePlus(20);
+        assertThat(resultCount).isEqualTo(3); // 20, 21, 40 3명
+
+        List<Member> member5 = memberRepository.findByUsername("member5");
+        System.out.println("member5 = " + member5); //트랜잭션 커밋 시점에 save()가 persist되므로 현재 flush로 인해 쿼리는 날라갔지만 update이후 1차캐시는 여전히 그대로 이다.
+
+//        em.clear(); //clearAutomatically = true 옵션 대체
+//        List<Member> remember5 = memberRepository.findByUsername("member5");
+//        System.out.println("member5 = " + remember5);
     }
 }

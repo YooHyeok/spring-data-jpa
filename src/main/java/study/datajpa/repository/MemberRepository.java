@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
@@ -93,4 +94,16 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
      */
     @Query(value = "select m from Member m left join m.team t", countQuery = "select count(m.username) from Member m")
     Page<Member> findByAgeOfJPQL(int age, PageRequest pageable);
+
+    /**
+     * [벌크 연산] <br/>
+     * @Modifying 어노테이션을 사용한다.<br/>
+     * (생략시 getResultList나 getSingleResult를 호출한다. - 에러 발생) <br/>
+     * 벌크 연산은 바로 DB에 Update쿼리가 날라가기 때문에 영속성 컨텍스트에 영향을 주지 않는다. <br/>
+     * 즉, 트랜잭션 커밋 시점에 save()가 persist되므로 flush로 인해 쿼리는 날라가지만 update이후 1차캐시는 여전히 그대로가 될것이다. <br/>
+     * 이에 따른 대안으로는 clearAutomatically = true 통해 1차캐시를 비워줄 수 있다.(기본값 false)
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("update Member m set m.age = m.age+1 where m.age >= :age")
+    int bulkAgePlus(@Param("age") int age);
 }
