@@ -86,4 +86,17 @@ public class MemberJpaRepository {
                 .setParameter("age", age)
                 .getSingleResult();
     }
+
+    /**
+     * 벌크연산 : 다량의 update 혹은 delete 처리<br/>
+     * executeUpdateQuery()<br/>
+     * 주의 : 영속성 컨텍스트를 무시하고 데이터베이스에 직접 쿼리를 날린다.<br/>
+     * update 혹은 delete는 flush를 먼저 호출하기 때문에 벌크 연산을 먼저 실행한다.<br/>
+     * 만약 캐시에 데이터가 존재하는 경우는 벌크연산 수행 후 영속성 컨텍스트를 초기화 해야한다.(초기화 후 다시 조회-캐시에적재)<br/>
+     */
+    public int bulkAgePlus(int age) {
+        return em.createQuery("update Member m set m.age = m.age + 1 where m.age >= :age")
+                .setParameter("age", age)
+                .executeUpdate();
+    }
 }
