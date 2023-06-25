@@ -6,10 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
+import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
+import study.datajpa.entity.Team;
 import study.datajpa.repository.MemberRepository;
+import study.datajpa.repository.TeamRepository;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class MemberRepositoryTest {
     @Autowired
     MemberRepository memberRepository;
+    @Autowired
+    TeamRepository teamRepository;
 
     /**
      * JpaRepository를 상속받은 인터페이스는 SpringDataJPA가 구현체 생성해서 Proxy객체로 injection 해준다. <br/>
@@ -105,5 +111,34 @@ class MemberRepositoryTest {
         Member findMember = result.get(0);
 
         assertThat(findMember).isEqualTo(m1);
+    }
+
+    @Test
+    public void testQueryAnnotationDTOTest() {
+        Team teamA = new Team("teamA");
+        teamRepository.save(teamA); // persist 후 flush, clear
+        Member m1 = new Member("AAA", 10, teamA);
+        memberRepository.save(m1);
+
+        Team teamB= new Team("teamB");
+        teamRepository.save(teamB);
+        Member m2 = new Member("BBB", 20, teamB);
+        memberRepository.save(m2);
+
+        // 타입 테스트
+        List<String> resultByType = memberRepository.findUserNameListOne();
+        assertThat(resultByType.get(0)).isEqualTo(m1.getUsername());
+
+        // Map<String, Object> 테스트
+        List<Map<String,Object>> resultByMap = memberRepository.findUserNameListOfMap();
+        assertThat(resultByMap.get(0).get("username")).isEqualTo(m1.getUsername());
+        assertThat(resultByMap.get(0).get("age")).isEqualTo(m1.getAge());
+
+        // DTO 테스트
+        List<MemberDto> result = memberRepository.findUserNameListOfDto();
+        MemberDto findMember = result.get(0);
+        assertThat(findMember.getId()).isSameAs(m1.getId());
+        assertThat(findMember.getUsername()).isSameAs(m1.getUsername());
+        assertThat(findMember.getTeamName()).isSameAs(m1.getTeam().getName());
     }
 }
