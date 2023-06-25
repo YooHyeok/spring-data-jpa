@@ -4,6 +4,10 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
@@ -190,5 +194,51 @@ class MemberRepositoryTest {
 
         Optional<Member> optionalMemberAAA =
                 memberRepository.findOptionalByUsername("AAA"); // Optional은 결과가 한건을 조회할때 사용하는데 2건이상이면
+    }
+
+    @Test
+    public void paging() {
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 10));
+        memberRepository.save(new Member("member3", 10));
+        memberRepository.save(new Member("member4", 10));
+        memberRepository.save(new Member("member5", 10));
+
+        int age = 10, offset = 0, limit = 3;
+        Sort usernameDesc = Sort.by(Sort.Direction.DESC, "username");
+
+        // PageRequest에 담아 처리
+        PageRequest pageable = PageRequest.of(offset, limit, usernameDesc);
+
+        Page<Member> page = memberRepository.findByAge(age, pageable);
+        Page<MemberDto> map = page.map(member -> new MemberDto(member.getId(), member.getUsername(), null)); //stream반복자 문법 Dto변환
+
+        List<Member> content = page.getContent(); //page객체로부터 조회된 데이터를 가져온다.
+
+        System.out.println("조회된 데이터 수 : " + content.size());
+        System.out.println("전체 데이터 수 : " + page.getTotalElements());
+        System.out.println("페이지 번호 : " + page.getNumber());
+        System.out.println("전체 페이지 번호 : " + page.getTotalPages());
+        System.out.println("첫번째 항목 여부 : " + page.isFirst());
+        System.out.println("다음 페이지 여부 : " + page.hasNext());
+
+        assertThat(content.size()).isEqualTo(3); // limit이 3 이므로 3명이 조회된다.
+        assertThat(page.getTotalElements()).isEqualTo(5); // 전체 데이터 수
+        assertThat(page.getNumber()).isEqualTo(0); // 현재 페이지 번호
+        assertThat(page.getTotalPages()).isEqualTo(2); //전체 페이지 번호
+        assertThat(page.isFirst()).isTrue(); // 첫번째 항목인지 여부 (boolean)
+        assertThat(page.hasNext()).isTrue(); // 다음 페이지가 있는지 여부(boolean)
+
+        Slice<Member> slice = memberRepository.findSliceByAge(age, pageable);
+        List<Member> content2 = slice.getContent();
+        assertThat(content2.size()).isEqualTo(3); // limit이 3 이므로 3명이 조회된다.
+        assertThat(slice.getNumber()).isEqualTo(0); // 현재 페이지 번호
+        assertThat(slice.isFirst()).isTrue(); // 첫번째 항목인지 여부 (boolean)
+        assertThat(slice.hasNext()).isTrue(); // 다음 페이지가 있는지 여부(boolean)
+
+        content2.stream().map(member -> new MemberDto(member.getId(), member.getUsername(), null)); //stream반복자 문법 Dto변환
+
+//        memberRepository.findByAgeOfJPQL(age, pageable).getContent().get(0).getTeam();
+
     }
 }

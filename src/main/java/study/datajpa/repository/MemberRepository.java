@@ -1,5 +1,9 @@
 package study.datajpa.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -79,4 +83,14 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Member findMemberByUsername(String username); // 단건
     Optional<Member> findOptionalByUsername(String username); // 단건 Optional
 
+    Page<Member> findByAge(int age, PageRequest pageable); //반환 타입을 Page로 받으면 TotalCount도 함께 쿼리가 조회된다.
+
+    Slice<Member> findSliceByAge(int age, PageRequest pageable);
+
+    /**
+     * [페이징] - countQuery 분리 <br/>
+     * JPQL사용할때 LeftJOin 문이라면 CountQuery를 따로 지정할 수 있다.
+     */
+    @Query(value = "select m from Member m left join m.team t", countQuery = "select count(m.username) from Member m")
+    Page<Member> findByAgeOfJPQL(int age, PageRequest pageable);
 }
