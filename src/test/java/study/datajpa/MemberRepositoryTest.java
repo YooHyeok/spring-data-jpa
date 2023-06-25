@@ -12,6 +12,7 @@ import study.datajpa.entity.Team;
 import study.datajpa.repository.MemberRepository;
 import study.datajpa.repository.TeamRepository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -140,5 +141,18 @@ class MemberRepositoryTest {
         assertThat(findMember.getId()).isSameAs(m1.getId());
         assertThat(findMember.getUsername()).isSameAs(m1.getUsername());
         assertThat(findMember.getTeamName()).isSameAs(m1.getTeam().getName());
+    }
+
+    @Test
+    public void collectionParameterBindingTest() {
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("BBB", 20);
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+
+        List<Member> result = memberRepository.findByUsernameIn(Arrays.asList("AAA", "BBB"));
+        for (Member member : result) {
+            System.out.println("member = " + member);
+        }
     }
 }

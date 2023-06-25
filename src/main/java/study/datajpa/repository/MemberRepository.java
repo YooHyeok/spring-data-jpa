@@ -44,7 +44,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<String> findUserNameListOne();
 
     /**
-     * @Query Map<'String,Object> 조회 <br/>
+     * @Query Map<' String, Object> 조회 <br/>
      * 값 1개 이상 조회 <br/>
      * 주의사항 : as 키워드를 사용하여 컬럼명을 명시적으로 지정해줘야 Map에서 key를 기준으로 할때 불러올 수 있다. <br/>
      * (jpa는 쿼리가 돌면서 자동으로 as에 임의의 값이 부여되기 때문에 DB컬럼명 그대로 불러와지지 않는다.)
@@ -53,7 +53,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
      */
 
     @Query("select m.username as username, m.age as age from Member m")
-    List<Map<String,Object>> findUserNameListOfMap();
+    List<Map<String, Object>> findUserNameListOfMap();
 
     /**
      * @Query DTO 조회 <br/>
@@ -64,4 +64,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
      */
     @Query("select new study.datajpa.dto.MemberDto(m.id, m.username, t.name) from Member m join m.team t")
     List<MemberDto> findUserNameListOfDto();
+
+    /**
+     * @Query 컬렉션 파라미터 바인딩 <br/>
+     * Query의 조건절중 In절에서 사용한다.
+     */
+    @Query("select m from Member m where m.username in :names")
+    List<Member> findByUsernameIn(@Param("names") List<String> names);
 }
