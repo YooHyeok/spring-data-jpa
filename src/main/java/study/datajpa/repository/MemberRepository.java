@@ -2,6 +2,7 @@ package study.datajpa.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
@@ -188,4 +189,21 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
      * 동적으로 프로젝션 데이터 변경이 가능해진다. (UsernameOnlyDto 말고 다른 클래스도 가능)
      */
     <T> List<T> findProjections3ByUsername(@Param("username") String username, Class<T> type);
+
+    /**
+     * NativeQuery
+     * 파라미터가 하나일 경우 조건 바인딩 대상에 ?를 입력하고 @Param을 생략할 수있다.
+     * 이름을 직접 부여해서 파라미터 바인딩하는 {:파라미터명, @Param} 문법도 사용이 가능하다.
+     */
+    @Query(value="select * from member where username = ?", nativeQuery = true)
+    Member findByNativeQuery(String username);
+
+    /**
+     * NativeQuery - Projection활용
+     */
+    @Query(value="select  m.member_id as id, m.username, t.name as teamName " +
+                    "FROM member m left join team t ON m.team_id = t.team_id",
+            countQuery = "SELECT count(*) from member",
+            nativeQuery = true)
+    Page<MemberProjection> findByNativeProjetion(Pageable pageable);
 }
