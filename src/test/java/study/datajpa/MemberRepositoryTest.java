@@ -8,12 +8,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 import study.datajpa.repository.MemberRepository;
+import study.datajpa.repository.MemberSpecification;
 import study.datajpa.repository.TeamRepository;
 
 import javax.persistence.EntityManager;
@@ -343,4 +345,23 @@ class MemberRepositoryTest {
         System.out.println("findMember.lastModifiedBy = " + findMember.getLastModifiedBy());
     }
 
+    @Test
+    public void secipcationBasic() {
+        Team teamA = new Team("teamA");
+        em.persist(teamA);
+
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        em.persist(m1);
+        em.persist(m2);
+        em.flush();
+        em.clear();
+
+        // spec : username이 m1이고 teamName이 teamA인 spec 생성
+        Specification<Member> spec = MemberSpecification.username("m1").and(MemberSpecification.teamName("teamA"));
+        //spec을 JPA 기본 쿼리메소드에 담아주면 repository에 상속받았던 JpaSpecification에 의해 실행이 되고 spec에 맞게끔 join조건이 걸린다.
+        List<Member> result = memberRepository.findAll(spec);
+
+        assertThat(result.size()).isEqualTo(1);
+    }
 }
