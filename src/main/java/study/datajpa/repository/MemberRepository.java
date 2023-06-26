@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 
+import javax.persistence.Entity;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -106,4 +107,39 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Modifying(clearAutomatically = true)
     @Query("update Member m set m.age = m.age+1 where m.age >= :age")
     int bulkAgePlus(@Param("age") int age);
+
+    //=== Fetch Join ===//
+
+    /**
+     * Member와 Team을 조인하지만 사실 이 쿼리는 Team을 전혀 사용하지 않는다.
+     * SELECT절이나, WHERE절에서 사용하지 않는다는 뜻이다.
+     * 사실상 select m from Member m과 같다.
+     * left join이기 때문에 왼쪽에 있는 member 자체를 다 조회한다는 뜻이 된다.
+     * 만약 select나, where에 team의 조건이 들어간다면 정상적인 join문이 보인다.
+     * JPA는 이 경우 최적화를 해서 해당 join없이 해당 내용만으로 SQL을 만든다.
+     * 만약 Member와 Team을 하나의 SQL로 한번에 조회하고 싶다면 JPA가 제공하는 fetch Jon을 사용해야 한다.
+     * left join fetch 혹은 @EntityGraph(attributePath="team")
+     *
+     * @return
+     */
+    //    @EntityGraph(attributePaths = "team")
+    @Query("select m from Member m join fetch m.team t")
+    List<Member> findmemberByLeftJoin();
+
+    /**
+     * 기존 메소드를 오버라이드 하여 Fetch Join 적용
+     * Team객체 변경사항 : proxy -> 진짜객체
+     * 쿼리 : N+1현상 삭제됨
+     * @return
+     */
+    @EntityGraph(attributePaths = "team")
+    @Override
+    List<Member> findAll();
+
+    /**
+     * fetch Join
+     * Member에 대해서만 조회하는 쿼리에 @EntityGraph를 적용해도 fetch Join이 걸린다.
+     */
+    @EntityGraph(attributePaths = "team")
+    List<Member> findEbByUsername(@Param("username") String username);
 }

@@ -243,7 +243,6 @@ class MemberRepositoryTest {
 
         content2.stream().map(member -> new MemberDto(member.getId(), member.getUsername(), null)); //stream반복자 문법 Dto변환
 
-//        memberRepository.findByAgeOfJPQL(age, pageable).getContent().get(0).getTeam();
 
     }
 
@@ -265,5 +264,49 @@ class MemberRepositoryTest {
 //        em.clear(); //clearAutomatically = true 옵션 대체
 //        List<Member> remember5 = memberRepository.findByUsername("member5");
 //        System.out.println("member5 = " + remember5);
+    }
+
+    @Test
+    public void fetchJoinTest() {
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+        memberRepository.save(new Member("member1", 10, teamA));
+        memberRepository.save(new Member("member2", 19, teamB));
+
+        /**
+         * left조인은 걸리고, select절에 team은 없지만
+         * n+1이 발생하지 않고도 team이 조회되는 이유
+         * 프록시 객체가 아닌 진짜 team객체를 반환해주는 이유
+         */
+        List<Member> members1 = memberRepository.findmemberByLeftJoin();
+        for (Member member : members1) {
+            System.out.println("member = " + member);
+            System.out.println("member.getTeam().getClass() = " + member.getTeam().getClass());
+            System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
+        }
+
+        //=== fetch를 적용한 join ===//
+        /**
+         * 1. select절에 member와 team을 모두 불러오는 left join 쿼리가 호출된다.
+         * 2. N+1 현상이 발생할때 Team에 대한 proxy객체를 주입했던 현상이 발생하지 않는다.
+         * (진짜 객체를 주입한다.)
+         */
+        List<Member> members2 = memberRepository.findAll();
+        for (Member member : members2) {
+            System.out.println("member = " + member);
+            System.out.println("member.getTeam().getClass() = " + member.getTeam().getClass());
+            System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
+        }
+
+        List<Member> members3 = memberRepository.findEbByUsername("member1");
+        for (Member member : members2) {
+            System.out.println("member = " + member);
+            System.out.println("member.getTeam().getClass() = " + member.getTeam().getClass());
+            System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
+        }
+
+
     }
 }
