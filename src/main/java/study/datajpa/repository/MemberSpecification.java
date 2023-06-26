@@ -9,8 +9,6 @@ import javax.persistence.criteria.*;
 
 public class MemberSpecification {
 
-
-
     /**
      * inner join
      * team team1_
