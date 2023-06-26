@@ -1,6 +1,7 @@
 package study.datajpa.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,7 +21,7 @@ public class MemberController {
 
     @PostConstruct
     public void init() {
-        for (int i = 0; i < 1000 ; i++) {
+        for (int i = 0; i < 300 ; i++) {
             memberRepository.save(new Member("user"+i, i));
         }
     }
@@ -67,8 +68,8 @@ public class MemberController {
     /**
      * 페이지 사이즈 글로벌 설정 테스트
      * url 1 :  /members2<br/>
-     * url 2 :  /members2?page=0&size=2001&sort=id,desc&sort=username,desc <br/>
-     * max page size를 2000으로 지정했기 때문에 2001을 파라미터로 지정하더라도 2000개만 출력한다. mbr
+     * url 2 :  /members2?page=0&size=301&sort=id,desc&sort=username,desc <br/>
+     * max page size를 300으로 지정했기 때문에 301을 파라미터로 지정하더라도 300개만 출력한다.
      * @param pageable
      * @return
      */
@@ -79,18 +80,34 @@ public class MemberController {
     }
 
     /**
-     * 페이지 사이즈 개별 설정 테스트
+     * 페이지 사이즈 개별 설정 테스트 <br/>
      * url 1 :  /members3<br/>
-     * url 2 :  /members3?page=0&size=2001&sort=id,desc&sort=username,desc <br/>
-     * max page size를 2000으로 지정했기 때문에 2001을 파라미터로 지정하더라도 2000개만 출력한다. mbr
+     * url 2 :  /members3?page=0&size=301&sort=id,desc&sort=username,desc <br/>
+     * max page size를 300으로 지정했기 때문에 301을 파라미터로 지정하더라도 300개만 출력한다. <br/>
+     * 개별 설정으로 13을 지정했더라도 url주소로 다른 값을 받아들일 수 있다. <br/>
+     * (파라미터로 301을 지정하면 limit이 302가 된다.)
      * @param pageable
      * @return
      */
     @GetMapping("/members3")
     public Page<Member> list3(
-            @PageableDefault(size = 12, sort = "username",
+            @PageableDefault(size = 13, sort = "username",
                     direction = Sort.Direction.DESC) Pageable pageable) {
         Page<Member> page = memberRepository.findAll(pageable);
         return page;
+    }
+
+    /**
+     * 페이징 처리 - 접두사 <br/>
+     * 페이지 정보가 둘 이상이면 접두사로 구분한다.
+     * @Qualifier에 접두사명을 추가한다("접두사명")
+     * @url : /members4?member_page=0&order_page=1
+     * @param memberPageable
+     * @param orderPageable
+     */
+    @GetMapping("/members4")
+    public String list(@Qualifier("member") Pageable memberPageable,
+                       @Qualifier("order") Pageable orderPageable) {
+        return "";
     }
 }
