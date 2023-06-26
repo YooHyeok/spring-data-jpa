@@ -307,4 +307,17 @@ class MemberRepositoryTest {
             System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
         }
     }
+
+    @Test
+    public void queryHint() {
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1); // 영속화
+        em.flush(); // insert 쿼리
+        em.clear(); // 영속 컨텍스트 초기화
+
+//        Member findMember = memberRepository.findById(member1.getId()).get();
+        Member findMember = memberRepository.findReadOnlyByUsername(member1.getUsername());
+        findMember.setUsername("member2");
+        em.flush(); // 변경 감지 - update 발생
+    }
 }
