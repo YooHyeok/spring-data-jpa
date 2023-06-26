@@ -4,11 +4,19 @@ spring:
     username: sa
     password:
     driver-class-name: org.h2.Driver
+
   jpa:
     hibernate:
       ddl-auto: create
   properties:
     hibernate:
+
+  data:
+    web:
+      pageable:
+        default-page-size: 20 # 기본 페이지 사이즈 (20)
+        max-page-size: 2000 # 최대 페이지 사이즈 (2000)
+
 #    show_sql: true
 #    format_sql: true
 #logging.level:
