@@ -171,9 +171,21 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     List<Member> findLockByUsername(String name);
 
     /**
-     * [프로젝션]
+     * [프로젝션] 인터페이스
      * 반환타입으로 Username만 받는 Projection 인터페이스를 제너릭으로 지정해준다.
      */
+    List<UsernameOnly> findProjections1ByUsername(@Param("username") String username);
 
-    List<UsernameOnly> findProjectionsByUsername(@Param("username") String username);
+    /**
+     * [프로젝션] 클래스
+     * 반환타입으로 Username만 받는 Projection 클래스를 제너릭으로 지정해준다.
+     */
+    List<UsernameOnlyDto> findProjections2ByUsername(@Param("username") String username);
+
+    /**
+     * [프로젝션] 동적 Projections
+     * Generic type을 지정한 뒤 매개변수로 Class<T> type을 선언해준다.
+     * 동적으로 프로젝션 데이터 변경이 가능해진다. (UsernameOnlyDto 말고 다른 클래스도 가능)
+     */
+    <T> List<T> findProjections3ByUsername(@Param("username") String username, Class<T> type);
 }

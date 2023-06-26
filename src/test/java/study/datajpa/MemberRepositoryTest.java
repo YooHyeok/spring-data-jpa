@@ -11,10 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
-import study.datajpa.repository.MemberRepository;
-import study.datajpa.repository.MemberSpecification;
-import study.datajpa.repository.TeamRepository;
-import study.datajpa.repository.UsernameOnly;
+import study.datajpa.repository.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -413,7 +410,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void ememem() {
+    public void projections() {
         Team teamA = new Team("teamA");
         em.persist(teamA);
 
@@ -424,9 +421,28 @@ class MemberRepositoryTest {
         em.flush();
         em.clear();
 
-        List<UsernameOnly> result = memberRepository.findProjectionsByUsername("m1");
+        // Projection (Join이 걸리지 않음)
+        List<UsernameOnly> result = memberRepository.findProjections1ByUsername("m1");
         for (UsernameOnly usernameOnly : result) {
             System.out.println("usernameOnly = " + usernameOnly);
+            System.out.println("usernameOnly = " + usernameOnly.getUsername());
+        }
+
+        //구체적인 클래스를 지정했으므로 Proxy를 반환하지 않는다.
+        List<UsernameOnlyDto> result2 = memberRepository.findProjections2ByUsername("m1");
+        for (UsernameOnlyDto usernameOnly : result2) {
+            System.out.println("usernameOnly = " + usernameOnly.getUsername());
+        }
+        
+        //동적 프로젝션
+        List<UsernameOnlyDto> result3 = memberRepository.findProjections3ByUsername("m1", UsernameOnlyDto.class);
+        for (UsernameOnlyDto usernameOnly : result3) {
+            System.out.println("usernameOnly = " + usernameOnly.getUsername());
+        }
+
+        //중첩구조 프로젝션 (fetch Join이 걸린다 - Join으로 인해 team데이터를 모두 가져오므로 select절이 최적화되지 않는다)
+        List<NestedClosedProjection> result4 = memberRepository.findProjections3ByUsername("m1", NestedClosedProjection.class);
+        for (NestedClosedProjection usernameOnly : result4) {
             System.out.println("usernameOnly = " + usernameOnly.getUsername());
         }
     }
