@@ -169,4 +169,11 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<Member> findLockByUsername(String name);
+
+    /**
+     * [프로젝션]
+     * 반환타입으로 Username만 받는 Projection 인터페이스를 제너릭으로 지정해준다.
+     */
+
+    List<UsernameOnly> findProjectionsByUsername(@Param("username") String username);
 }

@@ -14,6 +14,7 @@ import study.datajpa.entity.Team;
 import study.datajpa.repository.MemberRepository;
 import study.datajpa.repository.MemberSpecification;
 import study.datajpa.repository.TeamRepository;
+import study.datajpa.repository.UsernameOnly;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -409,7 +410,24 @@ class MemberRepositoryTest {
          *  
          * 실무에서 사용하기 매칭조건이 너무 단순하고 LEFT조인이 안되므로 QueryDsl을 사용하는것을 추천
          */
+    }
 
+    @Test
+    public void ememem() {
+        Team teamA = new Team("teamA");
+        em.persist(teamA);
 
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        em.persist(m1);
+        em.persist(m2);
+        em.flush();
+        em.clear();
+
+        List<UsernameOnly> result = memberRepository.findProjectionsByUsername("m1");
+        for (UsernameOnly usernameOnly : result) {
+            System.out.println("usernameOnly = " + usernameOnly);
+            System.out.println("usernameOnly = " + usernameOnly.getUsername());
+        }
     }
 }
