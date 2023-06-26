@@ -9,6 +9,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.repository.MemberRepository;
 
@@ -106,8 +107,21 @@ public class MemberController {
      * @param orderPageable
      */
     @GetMapping("/members4")
-    public String list(@Qualifier("member") Pageable memberPageable,
+    public String list4(@Qualifier("member") Pageable memberPageable,
                        @Qualifier("order") Pageable orderPageable) {
         return "";
+    }
+
+    /**
+     * 페이지 내용 DTO로 변환
+     * @param pageable
+     * @return
+     */
+    @GetMapping("/members5")
+    public Page<MemberDto> list5(Pageable pageable) {
+        Page<Member> page = memberRepository.findAll(pageable);
+        //DTO로 변환
+        Page<MemberDto> pageDto = page.map(member -> new MemberDto(member.getId(), member.getUsername(), null));
+        return pageDto;
     }
 }
