@@ -325,4 +325,19 @@ class MemberRepositoryTest {
     public void callCustom() {
         List<Member> memberCustom = memberRepository.findMemberCustom();//호출이 된다.
     }
+
+    @Test
+    public void jpaEventBaseEntity() throws Exception {
+        Member member = new Member("member1");
+        memberRepository.save(member); //@PrePersist발생 (등록/수정 현재시간 세팅)
+        Thread.sleep(100); //잠시 쉬고 수정하기 위해서
+        member.setUsername("member2");
+        em.flush(); //@PreUpdate
+        em.clear();
+
+        Member findMember = memberRepository.findById(member.getId()).get();
+
+        System.out.println("findMember = " + findMember.getCreatedDate());
+        System.out.println("findMember = " + findMember.getUpdatedDate());
+    }
 }
