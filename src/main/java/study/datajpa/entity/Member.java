@@ -16,7 +16,8 @@ import javax.persistence.*;
         name = "Member.all", //EntityGrraph를 호출할 이름을 미리 지정한다.
         attributeNodes = @NamedAttributeNode("team") // attributePaths값을 적용한다.
 )
-public class Member extends JpaBaseEntity {
+public class Member extends SpringJpaBaseEntity{
+//public class Member extends JpaBaseEntity{
     @Id
     @GeneratedValue
     @Column(name = "member_id")
