@@ -140,6 +140,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
      * fetch Join
      * Member에 대해서만 조회하는 쿼리에 @EntityGraph를 적용해도 fetch Join이 걸린다.
      */
-    @EntityGraph(attributePaths = "team")
-    List<Member> findEbByUsername(@Param("username") String username);
+//    @EntityGraph(attributePaths = "team")
+    @EntityGraph("Member.all")
+    List<Member> findEgByUsername(@Param("username") String username);
 }

@@ -10,7 +10,12 @@ import javax.persistence.*;
 @ToString(of = {"id", "username", "age"})
 @NamedQuery( // namedQuery 생성
         name = "Member.findByUsername",
-        query = "select m from Member m where m.username = :username")
+        query = "select m from Member m where m.username = :username"
+)
+@NamedEntityGraph( //NamedEntityGraph : 미리 록하여 관리
+        name = "Member.all", //EntityGrraph를 호출할 이름을 미리 지정한다.
+        attributeNodes = @NamedAttributeNode("team") // attributePaths값을 적용한다.
+)
 public class Member {
     @Id
     @GeneratedValue

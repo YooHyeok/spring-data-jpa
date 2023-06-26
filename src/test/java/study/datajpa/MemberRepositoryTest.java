@@ -300,13 +300,11 @@ class MemberRepositoryTest {
             System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
         }
 
-        List<Member> members3 = memberRepository.findEbByUsername("member1");
+        List<Member> members3 = memberRepository.findEgByUsername("member1");
         for (Member member : members2) {
             System.out.println("member = " + member);
             System.out.println("member.getTeam().getClass() = " + member.getTeam().getClass());
             System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
         }
-
-
     }
 }
