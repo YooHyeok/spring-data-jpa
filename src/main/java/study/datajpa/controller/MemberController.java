@@ -121,7 +121,9 @@ public class MemberController {
     public Page<MemberDto> list5(Pageable pageable) {
         Page<Member> page = memberRepository.findAll(pageable);
         //DTO로 변환
-        Page<MemberDto> pageDto = page.map(member -> new MemberDto(member.getId(), member.getUsername(), null));
+//        Page<MemberDto> pageDto = page.map(member -> new MemberDto(member.getId(), member.getUsername(), null));
+//        Page<MemberDto> pageDto = page.map(member -> new MemberDto(member)); //DTO에 선언한 객체타입 생성자를 사용한다.
+        Page<MemberDto> pageDto = page.map(MemberDto::new); //위 코드를 메서드 레퍼런스로 변환한다.
         return pageDto;
     }
 }
