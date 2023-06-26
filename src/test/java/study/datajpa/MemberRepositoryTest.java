@@ -320,4 +320,9 @@ class MemberRepositoryTest {
         findMember.setUsername("member2");
         em.flush(); // 변경 감지 - update 발생
     }
+
+    @Test
+    public void callCustom() {
+        List<Member> memberCustom = memberRepository.findMemberCustom();//호출이 된다.
+    }
 }
