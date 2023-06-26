@@ -3,6 +3,8 @@ package study.datajpa.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,7 +20,7 @@ public class MemberController {
 
     @PostConstruct
     public void init() {
-        for (int i = 0; i < 100 ; i++) {
+        for (int i = 0; i < 1000 ; i++) {
             memberRepository.save(new Member("user"+i, i));
         }
     }
@@ -58,6 +60,36 @@ public class MemberController {
      */
     @GetMapping("/members")
     public Page<Member> list(Pageable pageable) {
+        Page<Member> page = memberRepository.findAll(pageable);
+        return page;
+    }
+
+    /**
+     * 페이지 사이즈 글로벌 설정 테스트
+     * url 1 :  /members2<br/>
+     * url 2 :  /members2?page=0&size=2001&sort=id,desc&sort=username,desc <br/>
+     * max page size를 2000으로 지정했기 때문에 2001을 파라미터로 지정하더라도 2000개만 출력한다. mbr
+     * @param pageable
+     * @return
+     */
+    @GetMapping("/members2")
+    public Page<Member> list2(Pageable pageable) {
+        Page<Member> page = memberRepository.findAll(pageable);
+        return page;
+    }
+
+    /**
+     * 페이지 사이즈 개별 설정 테스트
+     * url 1 :  /members3<br/>
+     * url 2 :  /members3?page=0&size=2001&sort=id,desc&sort=username,desc <br/>
+     * max page size를 2000으로 지정했기 때문에 2001을 파라미터로 지정하더라도 2000개만 출력한다. mbr
+     * @param pageable
+     * @return
+     */
+    @GetMapping("/members3")
+    public Page<Member> list3(
+            @PageableDefault(size = 12, sort = "username",
+                    direction = Sort.Direction.DESC) Pageable pageable) {
         Page<Member> page = memberRepository.findAll(pageable);
         return page;
     }
